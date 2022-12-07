@@ -7,7 +7,7 @@ import csv
 import re
 from collections import UserDict
 
-with open('input_mini', 'r') as f:
+with open('input', 'r') as f:
     csvr = ( csv.reader(f) )
     data = list(csvr)
     data = [r[0] for r in data]
@@ -35,23 +35,19 @@ class File:
 class Dir(dict):
     def __init__(self, *args):
         dict.__init__(self, *args)
-    def size(self, verbose=False, capture=False):
+    def size(self, verbose=False):
         s = 0
-        chonks = {'self': 0}
+        chonks = {}
         for k,v in self.items():
             if isinstance(v, Dir):
                 chonk = v.size(verbose=verbose)
                 if verbose:
                     print(k, chonk)
-                if capture:
-                    chonks[k] = chonk
+                    cheater.append([k,chonk])
                 s += chonk
             elif isinstance(v, File):
                 s += v.size
-        if capture:
-            return chonks
-        else:
-            return s
+        return s
 
 
 filesystem = Dir()
@@ -104,4 +100,31 @@ for r in data:
 
 #
 
-print(filesystem['/'].size(verbose=True, capture=True))
+# part 1...
+
+cheater = [] # global variable
+que = filesystem.size(verbose=True)
+
+s = 0
+for c in cheater:
+    if c[1]<100000:
+        s += c[1]
+
+print(s)
+
+# part 2:
+# find the smallest directory that can be deleted 
+# such that 30000000 of 70000000 is available.
+#
+import numpy as np
+sizes = np.array([c[1] for c in cheater])
+o = np.argsort(sizes)
+
+target = que - (70000000 - 30000000) # want just slightly larger than this
+for i,oi in enumerate(o):
+    if sizes[oi] >= target:
+        print(oi)
+        print(cheater[oi])
+        break
+
+
