@@ -19,14 +19,17 @@ def v(x,y):
     '''FROM x TO y'''
     return np.sign(y-x)
 
-hp, tp = np.zeros((2,2), dtype=int)
-visited = {tuple(tp)}
+KNOTS = 10
+pos = np.zeros((KNOTS,2), dtype=int)
+visited = {tuple(pos[-1])}
 for move in data:
     c,l = move[0].split(' ')
     for i in range(int(l)):
-        hp += m[c]
-        if d(hp,tp)>1:
-            tp += v(tp,hp)
-            visited.add(tuple(tp)) # keep track of where we've visited
+        pos[0] += m[c]
+        for k in range(1,pos.shape[0]):
+            if d(pos[k-1], pos[k])>1:
+                pos[k] += v(pos[k], pos[k-1])
+        visited.add(tuple(pos[-1])) # keep track of where we've visited
 
 print('tail visited this many sites: ', len(visited))
+
