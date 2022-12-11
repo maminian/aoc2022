@@ -3,16 +3,16 @@ import csv
 
 with open('input', 'r') as f:
     raw = list(csv.reader(f, delimiter=':'))
-    data = []
+    monkeys = []
     monkey = []
     
     for row in raw:
         if len(row)==0:
-            data.append(monkey)
+            monkeys.append(monkey)
             monkey = []
         else:
             monkey.append(row)
-    data.append(monkey)
+    monkeys.append(monkey)
 
 class Monkey:
     def __init__(self, lines, worry_factor=3):
@@ -28,13 +28,18 @@ class Monkey:
         self.divisibility = int( lines[3][1].split(' ')[3] )
         self.m0 = int(lines[4][1].split(' ')[4])
         self.m1 = int(lines[5][1].split(' ')[4])
-#        print(self.id, self.items, self.op, self.factor, self.divisibility)
+#        print()
 
         self.inspections = 0
         self.wf = worry_factor
         
         return
     
+    def __str__(self):
+        return ' '.join([str(z) for z in ['Monkey ', self.id, ': ', 'items: ',self.items]])
+    def __repr__(self):
+        return self.__str__()
+        
     def turn(self):
         if len(self.items)==0:
             return []
@@ -62,25 +67,31 @@ class Monkey:
     def sum(self,a,b):
         return a+b
 
-class Gaggle:
-    def __init__(self,data, worry_factor=3):
-        self.monkeys = [Monkey(d, worry_factor=worry_factor) for d in data]
+class Barrel:
+    def __init__(self, monkeys, worry_factor=3):
+        self.monkeys = [Monkey(m, worry_factor=worry_factor) for m in monkeys]
         factors = [m.divisibility for m in self.monkeys]
-        self.lcm = 1
+        
+        self.rounds = 0
+        self.lcm = 1 # not actually the least common multiple
         for f in factors:
             self.lcm *= f
+            
         return
+        
     def round(self):
         for j,m in enumerate(self.monkeys):
             thrown = m.turn()
             for i,w in thrown:
                 self.monkeys[i].items.append(w % self.lcm)
+        self.rounds += 1
         return
-    def print(self):
-        for m in self.monkeys:
-            print('Monkey ', m.id, m.items)
-        print('')
-        return
+        
+    def __str__(self):
+        return '\n'.join(['-'*30 + '\nRound %5i\n'%self.rounds] + [m.__str__() for m in self.monkeys] + ['-'*30 + '\n'])
+    def __repr__(self):
+        return self.__str__()
+        
     def monkeybusiness(self, verbose=False):
         p = 1
         counts = [m.inspections for m in self.monkeys]
@@ -91,23 +102,27 @@ class Gaggle:
 
 ############
 
-#mon = Monkey(data[0])
+#mon = Monkey(monkeys[0])
 
 # part 1
-g = Gaggle(data)
+print('part 1')
+b = Barrel(monkeys)
 
 for _ in range(20):
-    g.round()
-g.print()
-p = g.monkeybusiness(True)
+    b.round()
+
+print(b)
+p = b.monkeybusiness(True)
 print(p)
+print('')
 
 # part 2
-g = Gaggle(data, worry_factor=1)
+print('part 2')
+b = Barrel(monkeys, worry_factor=1)
 
 for i in range(10000):
-    g.round()
-g.print()
-p = g.monkeybusiness(True)
+    b.round()
+print(b)
+p = b.monkeybusiness(True)
 print(p)
 
