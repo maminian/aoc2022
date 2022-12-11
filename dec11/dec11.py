@@ -15,7 +15,7 @@ with open('input', 'r') as f:
     data.append(monkey)
 
 class Monkey:
-    def __init__(self,lines):
+    def __init__(self, lines, worry_factor=3):
         
         self.id = lines[0][0].split(' ')[1]
         
@@ -31,6 +31,7 @@ class Monkey:
 #        print(self.id, self.items, self.op, self.factor, self.divisibility)
 
         self.inspections = 0
+        self.wf = worry_factor
         
         return
     
@@ -45,7 +46,7 @@ class Monkey:
             else:
                 self.items[i] = self.op(self.items[i], int(self.factor))
             # worry go down
-            self.items[i] = int( self.items[i]/3 )
+            self.items[i] = int( self.items[i]/self.wf )
             # monkey inspect worry for throwing
             a = self.items.pop(i)
             self.inspections += 1
@@ -62,14 +63,18 @@ class Monkey:
         return a+b
 
 class Gaggle:
-    def __init__(self,data):
-        self.monkeys = [Monkey(d) for d in data]
+    def __init__(self,data, worry_factor=3):
+        self.monkeys = [Monkey(d, worry_factor=worry_factor) for d in data]
+        factors = [m.divisibility for m in self.monkeys]
+        self.lcm = 1
+        for f in factors:
+            self.lcm *= f
         return
     def round(self):
         for j,m in enumerate(self.monkeys):
             thrown = m.turn()
             for i,w in thrown:
-                self.monkeys[i].items.append(w)
+                self.monkeys[i].items.append(w % self.lcm)
         return
     def print(self):
         for m in self.monkeys:
@@ -87,9 +92,20 @@ class Gaggle:
 ############
 
 #mon = Monkey(data[0])
+
+# part 1
 g = Gaggle(data)
 
 for _ in range(20):
+    g.round()
+g.print()
+p = g.monkeybusiness(True)
+print(p)
+
+# part 2
+g = Gaggle(data, worry_factor=1)
+
+for i in range(10000):
     g.round()
 g.print()
 p = g.monkeybusiness(True)
