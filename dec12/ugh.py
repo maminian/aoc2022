@@ -29,7 +29,7 @@ def dijkstra(G,N,n0,nf):
     curr = int(n0)
     path = []
     unvisited = [i for i in range(N)]
-    for i in range(N):
+    while len(unvisited)>0:
         curr = unvisited[ np.nanargmin(D[unvisited]) ]
         unvisited.remove(curr)
 
@@ -41,7 +41,7 @@ def dijkstra(G,N,n0,nf):
                     path.append([nbr,curr])
                     if nbr==nf:
                         print('whoopee')
-                        break
+                        return D,path
 #        path.append(curr)
 
 #        print(len(visited), len(np.unique(visited)),len(subset))
